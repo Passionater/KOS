@@ -6,10 +6,10 @@ import com.example.vs.databinding.ItemFoodLabelBinding
 import android.content.Intent // 👈 추가
 import com.example.vs.DetailActivity
 
-class FoodLabelAdapter(private val labels: List<String>) : RecyclerView.Adapter<FoodLabelAdapter.LabelViewHolder>() {
+class FoodLabelAdapter(private val labels: List<String?>) : RecyclerView.Adapter<FoodLabelAdapter.LabelViewHolder>() {
 
     inner class LabelViewHolder(private val binding: ItemFoodLabelBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(label: String) {
+        fun bind(label: String?) {
             binding.foodLabelTextView.text = label
 
             // 👇 아이템 클릭 리스너 추가

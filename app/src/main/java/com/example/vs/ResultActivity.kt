@@ -1,6 +1,5 @@
 package com.example.vs
 
-import ApiService
 import FoodLabelAdapter
 import android.content.Intent
 import android.net.Uri
@@ -18,20 +17,17 @@ import coil.load
 import com.example.vs.databinding.ActivityResultBinding
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
+
 
 class ResultActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityResultBinding
     private lateinit var filePath: String
+    private val foodRepository = FoodRepository()
 
     // 1. UI 미리보기를 위한 가짜 음식 라벨 데이터
     private val mockFoodLabels = listOf("밥", "시금치", "소고기 뭇국", "김치", "밥")
@@ -95,11 +91,12 @@ class ResultActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val imagePath = intent.getStringExtra("imagePath")
+
         if (imagePath != null) {
             filePath = imagePath
             binding.resultImageView.load(File(filePath))
             // 3. API 호출 대신 가짜 데이터로 목록을 즉시 표시
-            setupRecyclerViewWithMockData()
+            uploadImageAndGetLabels(filePath)
         }
 
         binding.retakeButton.setOnClickListener {
@@ -119,38 +116,46 @@ class ResultActivity : AppCompatActivity() {
 
 
 //    // 2. 이미지를 서버로 업로드하고 라벨을 받아오는 함수
-//    private fun uploadImageAndGetLabels(imagePath: String) {
-//        binding.progressBar.visibility = View.VISIBLE // 로딩 시작
-//        binding.foodRecyclerView.visibility = View.GONE // 목록 숨김
-//
-//        lifecycleScope.launch {
-//            try {
-//                val file = File(imagePath)
-//                val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
-//                val body = MultipartBody.Part.createFormData("image", file.name, requestFile)
-//
-//                val response = apiService.uploadImage(body)
-//
-//                if (response.isSuccessful) {
-//                    val labels = response.body()
-//                    if (labels != null) {
-//                        // 성공적으로 라벨을 받아오면 RecyclerView에 표시
-//                        binding.foodRecyclerView.apply {
-//                            layoutManager = LinearLayoutManager(this@ResultActivity)
-//                            adapter = FoodLabelAdapter(labels)
-//                        }
-//                    }
-//                } else {
-//                    Log.e("API_ERROR", "Error: ${response.code()}")
-//                }
-//            } catch (e: Exception) {
-//                Log.e("API_EXCEPTION", "Exception: ${e.message}")
-//            } finally {
-//                binding.progressBar.visibility = View.GONE // 로딩 종료
-//                binding.foodRecyclerView.visibility = View.VISIBLE // 목록 표시
-//            }
-//        }
-//    }
+    private fun uploadImageAndGetLabels(imagePath: String) {
+        binding.progressBar.visibility = View.VISIBLE // 로딩 시작
+        binding.foodRecyclerView.visibility = View.GONE // 목록 숨김
+
+        lifecycleScope.launch {
+            try {
+                val file = File(imagePath)
+                val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                //val body = MultipartBody.Part.createFormData("image", file.name, requestFile)
+
+                val imageUri = Uri.fromFile(File(imagePath))
+
+                val response = foodRepository.classifyFoodImageByYolo(this@ResultActivity, imageUri)
+
+                response.onSuccess { response ->
+                    // YOLO 응답에서 음식 이름 리스트 추출
+                    val foodLabels = response.classificationResults.map { it.name }
+                    setupRecyclerView(foodLabels)
+                }.onFailure { exception ->
+                    Log.e("API_ERROR", "Error: ${exception.message}")
+                    // 오류 발생 시 가짜 데이터로 대체
+                    setupRecyclerViewWithMockData()
+                }
+
+            } catch (e: Exception) {
+                Log.e("API_EXCEPTION", "Exception: ${e.message}")
+            } finally {
+                binding.progressBar.visibility = View.GONE // 로딩 종료
+                binding.foodRecyclerView.visibility = View.VISIBLE // 목록 표시
+            }
+        }
+    }
+
+    // 실제 데이터로 RecyclerView 설정
+    private fun setupRecyclerView(foodLabels: List<String?>) {
+        binding.foodRecyclerView.apply {
+            layoutManager = LinearLayoutManager(this@ResultActivity)
+            adapter = FoodLabelAdapter(foodLabels)
+        }
+    }
 
 
     // 3. MainActivity에 있던 카메라 실행 함수를 그대로 가져옴
