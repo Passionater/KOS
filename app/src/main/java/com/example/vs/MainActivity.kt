@@ -1,87 +1,127 @@
-package com.example.vs // 👈 1. 패키지 이름 변경
+package com.example.vs
 
 import NewsAdapter
 import NewsItem
+import android.Manifest
 import android.content.Intent
-import android.graphics.BitmapFactory
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import com.example.vs.databinding.ActivityMainBinding // 👈 2. 바인딩 import 변경
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.vs.databinding.ActivityMainBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
 
 class MainActivity : AppCompatActivity() {
-    lateinit var binding: ActivityMainBinding
-    lateinit var filePath: String
+
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var filePath: String
     private lateinit var newsAdapter: NewsAdapter
 
-    val requestCameraFileLauncher = registerForActivityResult(
+    // 1. 권한 요청 결과 처리를 위한 런처
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            launchCamera() // 권한을 허용하면 카메라 실행
+        }
+    }
+
+    // 2. 카메라 촬영 결과 처리를 위한 런처
+    private val requestCameraFileLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
-    ) {
-        // 사진 촬영 후 로직 (현재는 비워둠)
+    ) { result ->
+        // 사진 촬영을 성공적으로 마쳤는지 확인 (result.resultCode == RESULT_OK)
+        if (result.resultCode == RESULT_OK) {
+            // ResultActivity로 이동하는 인텐트 생성
+            val intent = Intent(this, ResultActivity::class.java)
+            // 인텐트에 사진 파일 경로(filePath)를 추가해서 전달
+            intent.putExtra("imagePath", filePath)
+            startActivity(intent)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // 3. 버튼 클릭 리스너를 권한 확인 로직으로 변경
         binding.cameraButton.setOnClickListener {
-            val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-            val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-            val file = File.createTempFile(
-                "JPEG_${timeStamp}_",
-                ".jpg",
-                storageDir
-            )
-            filePath = file.absolutePath
-
-            val photoURI: Uri = FileProvider.getUriForFile(
-                this,
-                "com.example.vs.fileprovider", // 👈 3. FileProvider 권한 이름 변경
-                file
-            )
-            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-            requestCameraFileLauncher.launch(intent)
+            checkCameraPermission()
         }
+
         setupRecyclerView()
         fetchNews()
     }
+
+    // 4. 카메라 권한을 확인하고 요청하는 함수
+    private fun checkCameraPermission() {
+        when {
+            // 권한이 이미 허용된 경우, 바로 카메라 실행
+            ContextCompat.checkSelfPermission(
+                this, Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                launchCamera()
+            }
+            // 권한이 명시적으로 거부된 경우 (나중에 설명 UI 추가 가능)
+            shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
+                // 권한이 왜 필요한지 설명해주는 기능 추가
+            }
+            // 그 외의 경우, 권한 요청 팝업을 띄움
+            else -> {
+                requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
+    }
+
+    // 5. 기존 카메라 실행 코드를 별도의 함수로 분리
+    private fun launchCamera() {
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val file = File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir)
+        filePath = file.absolutePath
+        val photoURI: Uri = FileProvider.getUriForFile(
+            this,
+            "com.example.vs.fileprovider",
+            file
+        )
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+        requestCameraFileLauncher.launch(intent)
+    }
+
     private fun setupRecyclerView() {
-        // 1. 어댑터를 초기화합니다 (처음에는 빈 목록으로).
         newsAdapter = NewsAdapter(emptyList())
-        // 2. 리사이클러뷰에 레이아웃 매니저와 어댑터를 설정합니다.
         binding.newsRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.newsRecyclerView.adapter = newsAdapter
     }
 
     private fun fetchNews() {
-        // 3. 코루틴을 사용해 백그라운드에서 네트워크 작업을 수행합니다.
         lifecycleScope.launch(Dispatchers.IO) {
             val newsList = mutableListOf<NewsItem>()
             val urls = listOf(
                 "https://www.dangnyoshinmun.co.kr/news/article.html?no=24409",
                 "https://www.dangnyoshinmun.co.kr/news/article.html?no=24408"
             )
-
             try {
                 for (url in urls) {
                     val doc = Jsoup.connect(url).get()
-                    // 웹페이지의 meta 태그에서 제목과 이미지 URL을 추출합니다.
                     val title = doc.select("meta[property=og:title]").attr("content")
                     val imageUrl = doc.select("meta[property=og:image]").attr("content")
                     if (title.isNotEmpty() && imageUrl.isNotEmpty()) {
@@ -89,36 +129,13 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e("FetchNewsError", "뉴스 크롤링 중 오류 발생", e)
             }
 
-            // 4. 메인 스레드에서 UI를 업데이트합니다.
             withContext(Dispatchers.Main) {
                 newsAdapter = NewsAdapter(newsList)
                 binding.newsRecyclerView.adapter = newsAdapter
             }
         }
-    }
-    // 이미지 크기를 계산하는 함수 (필요하다면 사용)
-    private fun calculateInSampleSize(fileUri: Uri, reqWidth: Int, reqHeight: Int): Int {
-        val options = BitmapFactory.Options()
-        options.inJustDecodeBounds = true
-        try {
-            var inputStream = contentResolver.openInputStream(fileUri)
-            BitmapFactory.decodeStream(inputStream, null, options)
-            inputStream!!.close()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        val (height: Int, width: Int) = options.run { outHeight to outWidth }
-        var inSampleSize = 1
-        if (height > reqHeight || width > reqWidth) {
-            val halfHeight: Int = height / 2
-            val halfWidth: Int = width / 2
-            while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
-                inSampleSize *= 2
-            }
-        }
-        return inSampleSize
     }
 }
