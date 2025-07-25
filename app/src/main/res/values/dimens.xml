@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 메인 레이아웃 크기들 -->
+    <dimen name="main_padding">24dp</dimen>
+    <dimen name="top_spacing">32dp</dimen>
+    <dimen name="bottom_spacing">32dp</dimen>
+    
+    <!-- 타이틀 관련 -->
+    <dimen name="title_text_size">72sp</dimen>
+    <dimen name="title_bottom_margin">64dp</dimen>
+    
+    <!-- 캐릭터 관련 -->
+    <dimen name="character_width">200dp</dimen>
+    <dimen name="character_height">160dp</dimen>
+    <dimen name="character_bottom_margin">32dp</dimen>
+    
+    <!-- 테이블 라인 -->
+    <dimen name="table_line_width">240dp</dimen>
+    <dimen name="table_line_height">2dp</dimen>
+    <dimen name="table_line_margin_top">16dp</dimen>
+    
+    <!-- 음식 컨테이너 -->
+    <dimen name="food_container_width">280dp</dimen>
+    <dimen name="food_container_height">200dp</dimen>
+    
+    <!-- 음식 아이템들 -->
+    <dimen name="food_item_width">64dp</dimen>
+    <dimen name="food_item_height">48dp</dimen>
+    
+    <!-- 와인병 -->
+    <dimen name="wine_bottle_width">16dp</dimen>
+    <dimen name="wine_bottle_height">64dp</dimen>
+    
+    <!-- 기본 마진/패딩 -->
+    <dimen name="margin_small">8dp</dimen>
+    <dimen name="margin_medium">16dp</dimen>
+    <dimen name="margin_large">24dp</dimen>
+    <dimen name="padding_small">8dp</dimen>
+    <dimen name="padding_medium">16dp</dimen>
+    <dimen name="padding_large">24dp</dimen>
+</resources>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 메인 색상들 -->
+    <color name="yellow_background">#FFEC7E</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    
+    <!-- 플레이스홀더 색상들 -->
+    <color name="character_placeholder">#E0E0E0</color>
+    <color name="food_placeholder">#F5F5F5</color>
+    <color name="wine_placeholder">#8B0000</color>
+    
+    <!-- 음식 접시 테두리 색상 -->
+    <color name="plate_border">#D4A574</color>
+    
+    <!-- 기본 Material Design 색상들 -->
+    <color name="colorPrimary">#FFEC7E</color>
+    <color name="colorPrimaryDark">#FFD54F</color>
+    <color name="colorAccent">#FF5722</color>
+</resources>

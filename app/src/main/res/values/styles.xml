@@ -1,0 +1,25 @@
+<resources>
+    <!-- Base application theme -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <!-- 타이틀 텍스트 스타일 -->
+    <style name="TitleTextStyle">
+        <item name="android:textSize">@dimen/title_text_size</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-black</item>
+    </style>
+
+    <!-- 음식 이미지 스타일 -->
+    <style name="FoodImageStyle">
+        <item name="android:layout_width">@dimen/food_item_width</item>
+        <item name="android:layout_height">@dimen/food_item_height</item>
+        <item name="android:background">@drawable/food_placeholder</item>
+        <item name="android:scaleType">centerCrop</item>
+    </style>
+
+</resources>
