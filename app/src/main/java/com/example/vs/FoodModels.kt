@@ -72,7 +72,10 @@ data class FoodClassificationResponse(
     val confidence: Double,
     
     @SerializedName("predicted_class")
-    val predictedClass: String
+    val predictedClass: String,
+
+    @SerializedName("classification_results")
+    val classificationResults: List<FoodInfo>
 )
 
 /**
