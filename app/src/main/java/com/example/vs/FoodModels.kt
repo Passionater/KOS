@@ -87,6 +87,9 @@ data class YoloClassificationResponse(
     
     @SerializedName("original_image_path")
     val originalImagePath: String,
+
+    @SerializedName("success_code")
+    val success_code: String,
     
     @SerializedName("success")
     val success: String,
@@ -100,7 +103,7 @@ data class YoloClassificationResponse(
     @SerializedName("detected_objects_count")
     val detectedObjectsCount: Int,
     
-    @SerializedName("classification_results")
+    @SerializedName("classificationResults")
     val classificationResults: List<FoodInfo>
 )
 

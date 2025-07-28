@@ -50,7 +50,7 @@ class ResultActivity : AppCompatActivity() {
         if (result.resultCode == RESULT_OK) {
             binding.resultImageView.load(File(filePath))
             // 2. API 호출 대신 가짜 데이터로 목록을 즉시 표시
-            setupRecyclerViewWithMockData()
+            //setupRecyclerViewWithMockData()
         }
     }
 
@@ -106,12 +106,12 @@ class ResultActivity : AppCompatActivity() {
 
 
     // 4. 가짜 데이터로 RecyclerView를 설정하는 함수
-    private fun setupRecyclerViewWithMockData() {
-        binding.foodRecyclerView.apply {
-            layoutManager = LinearLayoutManager(this@ResultActivity)
-            adapter = FoodLabelAdapter(mockFoodLabels)
-        }
-    }
+//    private fun setupRecyclerViewWithMockData() {
+//        binding.foodRecyclerView.apply {
+//            layoutManager = LinearLayoutManager(this@ResultActivity)
+//            adapter = FoodLabelAdapter(mockFoodLabels)
+//        }
+//    }
 
 
 
@@ -132,12 +132,12 @@ class ResultActivity : AppCompatActivity() {
 
                 response.onSuccess { response ->
                     // YOLO 응답에서 음식 이름 리스트 추출
-                    val foodLabels = response.classificationResults.map { it.name }
-                    setupRecyclerView(foodLabels)
+                    val foodInfos = response.classificationResults
+                    setupRecyclerView(foodInfos)
                 }.onFailure { exception ->
                     Log.e("API_ERROR", "Error: ${exception.message}")
                     // 오류 발생 시 가짜 데이터로 대체
-                    setupRecyclerViewWithMockData()
+                    //setupRecyclerViewWithMockData()
                 }
 
             } catch (e: Exception) {
@@ -150,10 +150,10 @@ class ResultActivity : AppCompatActivity() {
     }
 
     // 실제 데이터로 RecyclerView 설정
-    private fun setupRecyclerView(foodLabels: List<String?>) {
+    private fun setupRecyclerView(foodInfos: List<FoodInfo?>) {
         binding.foodRecyclerView.apply {
             layoutManager = LinearLayoutManager(this@ResultActivity)
-            adapter = FoodLabelAdapter(foodLabels)
+            adapter = FoodLabelAdapter(foodInfos)
         }
     }
 

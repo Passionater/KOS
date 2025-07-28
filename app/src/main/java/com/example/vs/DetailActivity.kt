@@ -28,23 +28,46 @@ class DetailActivity : AppCompatActivity() {
     }
 
     private fun setupMockData() {
+        // 각 영양소 정보 변수화
+        val foodCarbohydrate = intent.getStringExtra("foodCarbohydrate")
+        val foodProtein = intent.getStringExtra("foodProtein")
+        val foodFat = intent.getStringExtra("foodFat")
+        val foodGiRate = intent.getStringExtra("foodGiRate")
+        val foodTotalDietaryFiber = intent.getStringExtra("foodTotalDietaryFiber")
+
+
         // 각 영양소 뷰에 접근하여 데이터 설정
         binding.carbs.apply {
             nutritionTitleTextView.text = "탄수화물"
-            nutritionValueTextView.text = "50g"
+            nutritionValueTextView.text = buildString {
+                append(foodCarbohydrate)
+                append("g")
+            }
         }
         binding.protein.apply {
             nutritionTitleTextView.text = "단백질"
-            nutritionValueTextView.text = "10g"
+            nutritionValueTextView.text = buildString {
+                append(foodProtein)
+                append("g")
+            }
         }
         binding.fat.apply {
             nutritionTitleTextView.text = "지방"
-            nutritionValueTextView.text = "5g"
+            nutritionValueTextView.text = buildString {
+                append(foodFat)
+                append("g")
+            }
         }
         binding.fiber.apply {
             nutritionTitleTextView.text = "식이섬유"
-            nutritionValueTextView.text = "3g"
+            nutritionValueTextView.text = buildString {
+                append(foodTotalDietaryFiber)
+                append("g")
+            }
         }
-        binding.giValueTextView.text = "77"
+        binding.giValueTextView.text = buildString {
+            append(foodGiRate)
+            append("g")
+        }
     }
 }
