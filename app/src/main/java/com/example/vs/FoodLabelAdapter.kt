@@ -26,6 +26,7 @@ class FoodLabelAdapter(private val infos: List<FoodInfo?>) : RecyclerView.Adapte
                     intent.putExtra("foodFat", item.fat)
                     intent.putExtra("foodGiRate", item.giRate)
                     intent.putExtra("foodTotalDietaryFiber", item.totalDietaryFiber)
+                    intent.putExtra("foodImageUrl", item.foodImageUrl)
                     context.startActivity(intent)
                 }
             }

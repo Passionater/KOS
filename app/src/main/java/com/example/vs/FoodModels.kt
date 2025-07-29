@@ -43,7 +43,10 @@ data class FoodInfo(
     val giRate: Long?,
     
     @SerializedName("fi_delYn")
-    val delYn: String?
+    val delYn: String?,
+
+    @SerializedName("fi_image_url")
+    val foodImageUrl: String?
 )
 
 /**

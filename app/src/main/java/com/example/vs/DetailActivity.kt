@@ -2,6 +2,7 @@ package com.example.vs
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import coil.load
 import com.example.vs.databinding.ActivityDetailBinding
 import com.example.vs.databinding.ItemNutritionBinding
 
@@ -17,7 +18,8 @@ class DetailActivity : AppCompatActivity() {
         // 이전 화면에서 전달받은 음식 이름
         val foodName = intent.getStringExtra("foodName")
         binding.foodNameTextView.text = foodName
-
+        val foodImageUrl = intent.getStringExtra("foodImageUrl")
+        binding.cropImageView.load("http://172.30.1.90:8000/$foodImageUrl")
         // 닫기 버튼 클릭 시 현재 화면 종료
         binding.closeButton.setOnClickListener {
             finish()
@@ -29,11 +31,11 @@ class DetailActivity : AppCompatActivity() {
 
     private fun setupMockData() {
         // 각 영양소 정보 변수화
-        val foodCarbohydrate = intent.getStringExtra("foodCarbohydrate")
-        val foodProtein = intent.getStringExtra("foodProtein")
-        val foodFat = intent.getStringExtra("foodFat")
-        val foodGiRate = intent.getStringExtra("foodGiRate")
-        val foodTotalDietaryFiber = intent.getStringExtra("foodTotalDietaryFiber")
+        val foodCarbohydrate = intent.getDoubleExtra("foodCarbohydrate", 0.0).toString()
+        val foodProtein = intent.getDoubleExtra("foodProtein", 0.0).toString()
+        val foodFat = intent.getDoubleExtra("foodFat", 0.0).toString()
+        val foodGiRate = intent.getLongExtra("foodGiRate", 0L).toString()
+        val foodTotalDietaryFiber = intent.getDoubleExtra("foodTotalDietaryFiber", 0.0).toString()
 
 
         // 각 영양소 뷰에 접근하여 데이터 설정
@@ -67,7 +69,6 @@ class DetailActivity : AppCompatActivity() {
         }
         binding.giValueTextView.text = buildString {
             append(foodGiRate)
-            append("g")
         }
     }
 }
